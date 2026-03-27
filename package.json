@@ -23,6 +23,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@fastify/static": "^9.0.0",
     "@rolldown/binding-darwin-arm64": "^1.0.0-rc.12",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",

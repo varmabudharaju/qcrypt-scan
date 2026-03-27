@@ -14,6 +14,7 @@ export interface Finding {
 }
 
 export interface ScanReport {
+  id: string;
   path: string;
   scannedAt: string;
   filesScanned: number;

@@ -1,4 +1,5 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import type { Finding, ScanReport } from './types.js';
 import { scanSourceFile } from './scanners/source-code.js';
@@ -118,6 +119,7 @@ export async function scan(targetPath: string): Promise<ScanReport> {
   };
 
   return {
+    id: randomUUID(),
     path: targetPath,
     scannedAt: new Date().toISOString(),
     filesScanned: files.length,
