@@ -42,9 +42,12 @@ const ALGORITHMS: AlgorithmInfo[] = [
 
 export default function Education() {
   const [profiles, setProfiles] = useState<BenchmarkReport['profiles']>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getReference().then((data) => setProfiles(data.profiles));
+    getReference()
+      .then((data) => setProfiles(data.profiles))
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load profiles'));
   }, []);
 
   return (
@@ -53,6 +56,12 @@ export default function Education() {
       <p className="text-slate-500 dark:text-slate-400 mb-8">
         NIST finalized three post-quantum cryptography standards in 2024. Here is what they are and why they matter.
       </p>
+
+      {error && (
+        <div className="mb-4 p-3 rounded bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-8">
         {ALGORITHMS.map((algo) => {

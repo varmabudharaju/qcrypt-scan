@@ -12,6 +12,7 @@ export default function Comparison() {
   const [report, setReport] = useState<BenchmarkReport | null>(null);
   const [refData, setRefData] = useState<ReferenceData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -20,6 +21,9 @@ export default function Comparison() {
     ]).then(([benchReport, reference]) => {
       setReport(benchReport);
       setRefData(reference);
+    }).catch((e) => {
+      setError(e instanceof Error ? e.message : 'Failed to load data');
+    }).finally(() => {
       setLoading(false);
     });
   }, []);
@@ -28,8 +32,8 @@ export default function Comparison() {
     return <div className="text-slate-500">Running benchmarks for comparison...</div>;
   }
 
-  if (!report || !refData) {
-    return <div className="text-red-500">Failed to load data</div>;
+  if (error || !report || !refData) {
+    return <div className="text-red-500">{error || 'Failed to load data'}</div>;
   }
 
   return (
