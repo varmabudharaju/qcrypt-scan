@@ -37,12 +37,27 @@ describe('runBenchmarks', () => {
     expect(operations).not.toContain('hash');
   });
 
-  it('filters to sigs category', () => {
+  it('filters to sigs category (includes keygen, sign, verify)', () => {
     const report = runBenchmarks({ iterations: 5, category: 'sigs' });
 
     const operations = new Set(report.results.map((r) => r.operation));
+    expect(operations).toContain('keygen');
     expect(operations).toContain('sign');
     expect(operations).toContain('verify');
+    expect(operations).not.toContain('hash');
+    expect(operations).not.toContain('encrypt');
+  });
+
+  it('kex category does not include signature-only algorithms', () => {
+    const report = runBenchmarks({ iterations: 5, category: 'kex' });
+    const localAlgos = report.results
+      .filter((r) => !r.isReference)
+      .map((r) => r.algorithm);
+
+    expect(localAlgos).not.toContain('ECDSA-P256');
+    expect(localAlgos).not.toContain('Ed25519');
+    expect(localAlgos).toContain('ECDH-P256');
+    expect(localAlgos).toContain('X25519');
   });
 
   it('filters to sym category', () => {

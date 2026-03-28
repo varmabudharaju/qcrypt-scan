@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import os from 'node:os';
-import { getKeygenBenchmarks } from './benchmarks/keygen.js';
+import { getKexKeygenBenchmarks, getSigKeygenBenchmarks } from './benchmarks/keygen.js';
 import { getSignVerifyBenchmarks } from './benchmarks/sign-verify.js';
 import { getEncryptDecryptBenchmarks } from './benchmarks/encrypt-decrypt.js';
 import { getHashBenchmarks } from './benchmarks/hash.js';
@@ -36,10 +36,11 @@ export function runBenchmarks(options: RunOptions): BenchmarkReport {
   const localResults: BenchmarkResult[] = [];
 
   if (category === 'all' || category === 'kex') {
-    localResults.push(...getKeygenBenchmarks(iterations));
+    localResults.push(...getKexKeygenBenchmarks(iterations));
   }
 
   if (category === 'all' || category === 'sigs') {
+    localResults.push(...getSigKeygenBenchmarks(iterations));
     localResults.push(...getSignVerifyBenchmarks(iterations));
   }
 

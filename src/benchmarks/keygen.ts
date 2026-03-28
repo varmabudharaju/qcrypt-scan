@@ -2,86 +2,38 @@ import crypto from 'node:crypto';
 import { benchmark } from './runner.js';
 import type { BenchmarkResult } from '../types.js';
 
-export function getKeygenBenchmarks(iterations: number): BenchmarkResult[] {
-  const results: BenchmarkResult[] = [];
+// Key exchange algorithms — keygen only
+export function getKexKeygenBenchmarks(iterations: number): BenchmarkResult[] {
+  return runKeygenSuite(iterations, [
+    { algorithm: 'RSA-2048', fn: () => crypto.generateKeyPairSync('rsa', { modulusLength: 2048 }) },
+    { algorithm: 'RSA-4096', fn: () => crypto.generateKeyPairSync('rsa', { modulusLength: 4096 }) },
+    { algorithm: 'ECDH-P256', fn: () => crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' }) },
+    { algorithm: 'X25519', fn: () => crypto.generateKeyPairSync('x25519') },
+  ]);
+}
 
-  // RSA-2048
-  const rsa2048 = benchmark(() => {
-    crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
-  }, iterations);
-  results.push({
-    algorithm: 'RSA-2048',
-    operation: 'keygen',
-    ...rsa2048,
-    iterations,
-    isReference: false,
-    quantumSafe: false,
+// Signature algorithms — keygen only (sign/verify in sign-verify.ts)
+export function getSigKeygenBenchmarks(iterations: number): BenchmarkResult[] {
+  return runKeygenSuite(iterations, [
+    { algorithm: 'RSA-2048', fn: () => crypto.generateKeyPairSync('rsa', { modulusLength: 2048 }) },
+    { algorithm: 'ECDSA-P256', fn: () => crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' }) },
+    { algorithm: 'Ed25519', fn: () => crypto.generateKeyPairSync('ed25519') },
+  ]);
+}
+
+function runKeygenSuite(
+  iterations: number,
+  algos: Array<{ algorithm: string; fn: () => void }>,
+): BenchmarkResult[] {
+  return algos.map(({ algorithm, fn }) => {
+    const timing = benchmark(fn, iterations);
+    return {
+      algorithm,
+      operation: 'keygen' as const,
+      ...timing,
+      iterations,
+      isReference: false,
+      quantumSafe: false,
+    };
   });
-
-  // RSA-4096
-  const rsa4096 = benchmark(() => {
-    crypto.generateKeyPairSync('rsa', { modulusLength: 4096 });
-  }, iterations);
-  results.push({
-    algorithm: 'RSA-4096',
-    operation: 'keygen',
-    ...rsa4096,
-    iterations,
-    isReference: false,
-    quantumSafe: false,
-  });
-
-  // ECDH-P256
-  const ecdhP256 = benchmark(() => {
-    crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' });
-  }, iterations);
-  results.push({
-    algorithm: 'ECDH-P256',
-    operation: 'keygen',
-    ...ecdhP256,
-    iterations,
-    isReference: false,
-    quantumSafe: false,
-  });
-
-  // X25519
-  const x25519 = benchmark(() => {
-    crypto.generateKeyPairSync('x25519');
-  }, iterations);
-  results.push({
-    algorithm: 'X25519',
-    operation: 'keygen',
-    ...x25519,
-    iterations,
-    isReference: false,
-    quantumSafe: false,
-  });
-
-  // ECDSA-P256 (keygen only — sign/verify in sign-verify.ts)
-  const ecdsaP256 = benchmark(() => {
-    crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' });
-  }, iterations);
-  results.push({
-    algorithm: 'ECDSA-P256',
-    operation: 'keygen',
-    ...ecdsaP256,
-    iterations,
-    isReference: false,
-    quantumSafe: false,
-  });
-
-  // Ed25519 (keygen only — sign/verify in sign-verify.ts)
-  const ed25519 = benchmark(() => {
-    crypto.generateKeyPairSync('ed25519');
-  }, iterations);
-  results.push({
-    algorithm: 'Ed25519',
-    operation: 'keygen',
-    ...ed25519,
-    iterations,
-    isReference: false,
-    quantumSafe: false,
-  });
-
-  return results;
 }
