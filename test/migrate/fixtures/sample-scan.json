@@ -1,0 +1,50 @@
+{
+  "id": "test-scan-001",
+  "path": "/tmp/test-project",
+  "scannedAt": "2026-03-27T12:00:00.000Z",
+  "filesScanned": 10,
+  "findings": [
+    {
+      "file": "src/auth.ts",
+      "line": 15,
+      "algorithm": "RSA-2048",
+      "category": "asymmetric",
+      "risk": "CRITICAL",
+      "snippet": "crypto.generateKeyPairSync('rsa', { modulusLength: 2048 })",
+      "explanation": "RSA-2048 is vulnerable to Shor's algorithm",
+      "replacement": "ML-KEM-768"
+    },
+    {
+      "file": "src/utils/hash.py",
+      "line": 8,
+      "algorithm": "MD5",
+      "category": "hash",
+      "risk": "WARNING",
+      "snippet": "hashlib.md5(data)",
+      "explanation": "MD5 weakened by Grover's algorithm",
+      "replacement": "SHA3-256"
+    },
+    {
+      "file": "src/config.ts",
+      "line": 23,
+      "algorithm": "AES-128-GCM",
+      "category": "symmetric",
+      "risk": "WARNING",
+      "snippet": "crypto.createCipheriv('aes-128-gcm', key16, iv)",
+      "explanation": "AES-128 security halved by Grover's algorithm",
+      "replacement": "AES-256-GCM"
+    },
+    {
+      "file": "src/legacy.go",
+      "line": 5,
+      "algorithm": "AES-192",
+      "category": "symmetric",
+      "risk": "INFO",
+      "snippet": "aes.NewCipher(key24)",
+      "explanation": "AES-192 has reduced security margin",
+      "replacement": "AES-256"
+    }
+  ],
+  "summary": { "critical": 1, "warning": 2, "info": 1, "ok": 0 },
+  "grade": "C"
+}
