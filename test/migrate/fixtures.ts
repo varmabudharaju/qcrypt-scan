@@ -66,6 +66,17 @@ export const OK_AES256_FINDING: Finding = {
   replacement: 'No change needed',
 };
 
+export const WARNING_TLS10_FINDING: Finding = {
+  file: 'src/server.ts',
+  line: 30,
+  algorithm: 'TLS 1.0',
+  category: 'protocol',
+  risk: 'WARNING',
+  snippet: "tls.createServer({ minVersion: 'TLSv1' })",
+  explanation: 'TLS 1.0 is deprecated and has known vulnerabilities',
+  replacement: 'TLS 1.3',
+};
+
 export const SAMPLE_FINDINGS: Finding[] = [
   CRITICAL_RSA_FINDING,
   CRITICAL_ECDSA_FINDING,

@@ -11,6 +11,7 @@ import {
   WARNING_AES128_FINDING,
   INFO_AES192_FINDING,
   OK_AES256_FINDING,
+  WARNING_TLS10_FINDING,
 } from '../fixtures.js';
 
 describe('mapRiskToPriority', () => {
@@ -42,6 +43,10 @@ describe('estimateEffort', () => {
 
   it('returns low for symmetric', () => {
     expect(estimateEffort(WARNING_AES128_FINDING)).toBe('low');
+  });
+
+  it('returns medium for protocol', () => {
+    expect(estimateEffort(WARNING_TLS10_FINDING)).toBe('medium');
   });
 });
 
@@ -91,5 +96,13 @@ describe('generateMigrationStep', () => {
   it('includes finding reference in the returned step', () => {
     const step = generateMigrationStep(CRITICAL_RSA_FINDING);
     expect(step!.finding).toBe(CRITICAL_RSA_FINDING);
+  });
+
+  it('generates a step for a WARNING protocol finding with medium effort', () => {
+    const step = generateMigrationStep(WARNING_TLS10_FINDING);
+    expect(step).not.toBeNull();
+    expect(step!.priority).toBe('short-term');
+    expect(step!.effort).toBe('medium');
+    expect(step!.notes).toContain('Protocol change');
   });
 });

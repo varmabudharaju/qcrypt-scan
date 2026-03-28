@@ -18,6 +18,7 @@ export function normalizeAlgorithm(algorithm: string): string {
   if (lower.includes('aes-128') || lower.includes('aes128')) return 'aes128';
   if (lower.includes('aes-192') || lower.includes('aes192')) return 'aes192';
   if (lower.includes('des') || lower === '3des' || lower === 'rc4') return 'des';
+  if (lower.includes('p-256') || lower.includes('p-384') || lower.includes('secp256') || lower.includes('secp384')) return 'ecdsa';
   return lower;
 }
 

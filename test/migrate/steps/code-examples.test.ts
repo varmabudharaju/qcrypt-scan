@@ -27,6 +27,11 @@ describe('normalizeAlgorithm', () => {
     expect(normalizeAlgorithm('SHA-1')).toBe('sha1');
   });
 
+  it('normalizes bare curve names to ecdsa', () => {
+    expect(normalizeAlgorithm('P-256')).toBe('ecdsa');
+    expect(normalizeAlgorithm('P-384')).toBe('ecdsa');
+  });
+
   it('normalizes symmetric algorithms', () => {
     expect(normalizeAlgorithm('AES-128-GCM')).toBe('aes128');
     expect(normalizeAlgorithm('AES-192')).toBe('aes192');
