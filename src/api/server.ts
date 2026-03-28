@@ -7,6 +7,8 @@ import type { FastifyInstance } from 'fastify';
 import { runBenchmarks } from '../index.js';
 import { getPqcReferenceResults, getPqcProfiles } from '../reference/pqc-data.js';
 import type { BenchmarkCategory, BenchmarkReport } from '../types.js';
+import { generateMigrationPlan } from '../migrate/index.js';
+import type { MigrationPlan, ScanReport } from '../migrate/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -51,6 +53,42 @@ export function createServer(): FastifyInstance {
     results: getPqcReferenceResults(),
     profiles: getPqcProfiles(),
   }));
+
+  // ── Migrate routes ──
+
+  const migrateHistory: MigrationPlan[] = [];
+
+  app.post<{ Body: { path?: string; scanReport?: ScanReport } }>(
+    '/api/migrate',
+    async (request) => {
+      let scanReport = request.body?.scanReport;
+
+      if (!scanReport && request.body?.path) {
+        const { runScan } = await import('../migrate/scan-runner.js');
+        scanReport = await runScan(request.body.path);
+      }
+
+      if (!scanReport) {
+        const { runScan } = await import('../migrate/scan-runner.js');
+        scanReport = await runScan('.');
+      }
+
+      const plan = generateMigrationPlan(scanReport);
+      migrateHistory.unshift(plan);
+      return plan;
+    },
+  );
+
+  app.get('/api/migrate/history', async () => migrateHistory);
+
+  app.get<{ Params: { id: string } }>('/api/migrate/:id', async (request, reply) => {
+    const plan = migrateHistory.find((p) => p.id === request.params.id);
+    if (!plan) {
+      reply.code(404);
+      return { error: 'Not found' };
+    }
+    return plan;
+  });
 
   // Serve web UI static files if built
   const webDist = path.resolve(__dirname, '../../web/dist');
