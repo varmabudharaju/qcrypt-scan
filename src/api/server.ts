@@ -90,6 +90,31 @@ export function createServer(): FastifyInstance {
     return plan;
   });
 
+  // ── Browse routes ──
+
+  app.get<{ Querystring: { path?: string } }>('/api/browse', async (request, reply) => {
+    const targetPath = path.resolve(request.query.path || '.');
+    try {
+      const stat = fs.statSync(targetPath);
+      if (!stat.isDirectory()) {
+        reply.code(400);
+        return { error: 'Not a directory' };
+      }
+      const entries = fs.readdirSync(targetPath, { withFileTypes: true })
+        .filter((e) => e.isDirectory() && !e.name.startsWith('.') && e.name !== 'node_modules' && e.name !== 'dist')
+        .map((e) => e.name)
+        .sort();
+      return {
+        path: targetPath,
+        parent: path.dirname(targetPath),
+        entries,
+      };
+    } catch {
+      reply.code(400);
+      return { error: `Cannot read directory: ${targetPath}` };
+    }
+  });
+
   // Serve web UI static files if built
   const webDist = path.resolve(__dirname, '../../web/dist');
   if (fs.existsSync(webDist)) {

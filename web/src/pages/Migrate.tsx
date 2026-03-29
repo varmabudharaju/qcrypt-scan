@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { generateMigratePlan, type MigrationPlan, type MigrationStep } from '../api.ts';
+import FolderPicker from '../components/FolderPicker.tsx';
 
 const PRIORITY_STYLES: Record<string, string> = {
   immediate: 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400',
@@ -67,7 +68,7 @@ function StepCard({ step }: { step: MigrationStep }) {
 
 export default function Migrate() {
   const [scanPath, setScanPath] = useState('.');
-  const [scanFile, setScanFile] = useState<File | null>(null);
+  const [showBrowser, setShowBrowser] = useState(false);
   const [running, setRunning] = useState(false);
   const [plan, setPlan] = useState<MigrationPlan | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -76,15 +77,8 @@ export default function Migrate() {
     setRunning(true);
     setError(null);
     try {
-      if (scanFile) {
-        const text = await scanFile.text();
-        const scanReport = JSON.parse(text);
-        const result = await generateMigratePlan(undefined, scanReport);
-        setPlan(result);
-      } else {
-        const result = await generateMigratePlan(scanPath);
-        setPlan(result);
-      }
+      const result = await generateMigratePlan(scanPath);
+      setPlan(result);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to generate migration plan');
     } finally {
@@ -138,15 +132,12 @@ export default function Migrate() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm text-slate-500 dark:text-slate-400 mb-1">Or upload scan JSON</label>
-          <input
-            type="file"
-            accept=".json"
-            onChange={(e) => setScanFile(e.target.files?.[0] ?? null)}
-            className="text-sm"
-          />
-        </div>
+        <button
+          onClick={() => setShowBrowser(true)}
+          className="px-3 py-1.5 rounded border border-slate-300 dark:border-[#333] text-sm hover:bg-slate-100 dark:hover:bg-[#1a1a1a] transition-colors"
+        >
+          Browse...
+        </button>
 
         <button
           onClick={handleGenerate}
@@ -156,6 +147,13 @@ export default function Migrate() {
           {running ? 'Generating...' : 'Generate Plan'}
         </button>
       </div>
+
+      {showBrowser && (
+        <FolderPicker
+          onSelect={(p) => { setScanPath(p); setShowBrowser(false); }}
+          onClose={() => setShowBrowser(false)}
+        />
+      )}
 
       {error && (
         <div className="mb-4 p-3 rounded bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm">

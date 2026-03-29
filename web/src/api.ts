@@ -67,6 +67,19 @@ export function healthCheck(): Promise<{ status: string }> {
   return fetchJson('/api/health');
 }
 
+// ── Browse API ──
+
+export interface BrowseResult {
+  path: string;
+  parent: string;
+  entries: string[];
+}
+
+export function browsePath(dirPath?: string): Promise<BrowseResult> {
+  const params = dirPath ? `?path=${encodeURIComponent(dirPath)}` : '';
+  return fetchJson(`/api/browse${params}`);
+}
+
 // ── Migrate types ──
 
 export interface MigrateFinding {
