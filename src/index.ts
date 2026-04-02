@@ -7,6 +7,9 @@ import { scanCertificateFile } from './scanners/certificates.js';
 import { scanConfigFile } from './scanners/config-files.js';
 import { scanDependencyFile } from './scanners/dependencies.js';
 import { getLanguagePatterns } from './rules/patterns.js';
+import { enrichFindings } from './analyzers/context.js';
+import { computeReadinessScore } from './analyzers/readiness.js';
+import { parseQcryptConfig, applyConfigOverrides } from './config/qcrypt-config.js';
 
 const CERT_EXTENSIONS = new Set(['.pem', '.crt', '.cer', '.key', '.pub']);
 const CONFIG_BASENAMES = new Set([
@@ -53,12 +56,12 @@ function classifyFile(filePath: string): 'source' | 'cert' | 'config' | 'dep' | 
   return 'skip';
 }
 
-export function computeGrade(critical: number, _warning: number): 'A' | 'B' | 'C' | 'D' | 'F' {
-  if (critical > 10) return 'F';
-  if (critical >= 4) return 'D';
-  if (critical >= 1) return 'C';
-  if (_warning > 0) return 'B';
-  return 'A';
+export function gradeFromScore(overall: number): 'A' | 'B' | 'C' | 'D' | 'F' {
+  if (overall >= 90) return 'A';
+  if (overall >= 70) return 'B';
+  if (overall >= 50) return 'C';
+  if (overall >= 30) return 'D';
+  return 'F';
 }
 
 export async function scan(targetPath: string): Promise<ScanReport> {
@@ -118,13 +121,34 @@ export async function scan(targetPath: string): Promise<ScanReport> {
     ok: allFindings.filter((f) => f.risk === 'OK').length,
   };
 
+  // Enrich findings with context
+  let enrichedFindings = enrichFindings(allFindings);
+
+  // Load .qcrypt.yml if present
+  const configPath = stat.isDirectory()
+    ? path.join(resolvedPath, '.qcrypt.yml')
+    : path.join(path.dirname(resolvedPath), '.qcrypt.yml');
+  try {
+    const configContent = readFileSync(configPath, 'utf-8');
+    const config = parseQcryptConfig(configContent);
+    enrichedFindings = applyConfigOverrides(enrichedFindings, config);
+  } catch {
+    // No config file — use defaults
+  }
+
+  // Compute readiness score
+  const readiness = computeReadinessScore(enrichedFindings, files.length);
+  const grade = gradeFromScore(readiness.overall);
+
   return {
     id: randomUUID(),
     path: targetPath,
     scannedAt: new Date().toISOString(),
     filesScanned: files.length,
     findings: allFindings,
+    enrichedFindings,
     summary,
-    grade: computeGrade(summary.critical, summary.warning),
+    grade,
+    readiness,
   };
 }

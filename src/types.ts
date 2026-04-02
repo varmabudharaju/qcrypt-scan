@@ -19,8 +19,10 @@ export interface ScanReport {
   scannedAt: string;
   filesScanned: number;
   findings: Finding[];
+  enrichedFindings: EnrichedFinding[];
   summary: { critical: number; warning: number; info: number; ok: number };
   grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  readiness: ReadinessScore;
 }
 
 export interface AlgorithmRule {
