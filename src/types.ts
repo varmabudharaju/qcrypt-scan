@@ -43,3 +43,38 @@ export interface LanguagePatterns {
     regex: RegExp;
   }>;
 }
+
+export interface FindingContext {
+  sensitivity: 'high' | 'medium' | 'low';
+  hndlRisk: boolean;
+  isTestFile: boolean;
+  migrationEffort: 'low' | 'medium' | 'high';
+}
+
+export interface EnrichedFinding extends Finding {
+  context: FindingContext;
+}
+
+export interface DimensionScore {
+  score: number;
+  weighted: number;
+  details: string;
+}
+
+export interface ReadinessScore {
+  overall: number;
+  dimensions: {
+    vulnerability: DimensionScore;
+    priority: DimensionScore;
+    migration: DimensionScore;
+    agility: DimensionScore;
+  };
+}
+
+export interface QcryptConfig {
+  sensitivity?: {
+    high?: string[];
+    low?: string[];
+    ignore?: string[];
+  };
+}
