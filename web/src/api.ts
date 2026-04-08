@@ -292,11 +292,37 @@ export function getScan(id: string): Promise<ScanDetail> {
   return request(`/scans/${id}`);
 }
 
-export function runBenchmark(opts?: { iterations?: number; category?: string }): Promise<BenchmarkReport> {
-  return request('/bench', {
+export async function runBenchmark(opts?: { iterations?: number; category?: string }): Promise<BenchmarkReport> {
+  const result = await request<BenchmarkReport & { status?: string; benchId?: string }>('/bench', {
     method: 'POST',
     body: JSON.stringify(opts ?? {}),
   });
+
+  // Async benchmark — poll until ready
+  if (result.status === 'running' && result.benchId) {
+    const benchId = result.benchId;
+    return new Promise((resolve, reject) => {
+      async function poll() {
+        try {
+          const data = await request<BenchmarkReport & { status?: string }>(`/bench/${benchId}`);
+          if (data.status === 'running') {
+            setTimeout(poll, 2000);
+            return;
+          }
+          if (data.status === 'failed') {
+            reject(new Error('Benchmark failed'));
+            return;
+          }
+          resolve(data);
+        } catch (err) {
+          reject(err);
+        }
+      }
+      setTimeout(poll, 2000);
+    });
+  }
+
+  return result;
 }
 
 export function getBenchmarkHistory(): Promise<BenchmarkReport[]> {
