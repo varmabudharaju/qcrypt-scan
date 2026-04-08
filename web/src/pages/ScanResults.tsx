@@ -19,15 +19,36 @@ export function ScanResults() {
   const [plan, setPlan] = useState<MigrationPlan | null>(null);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<string>('all');
+  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-    getScan(id)
-      .then((data: ScanDetail) => {
+    let cancelled = false;
+
+    async function poll() {
+      try {
+        const data: ScanDetail = await getScan(id!);
+        if (cancelled) return;
+        if (data.status === 'scanning') {
+          setScanning(true);
+          setTimeout(poll, 3000);
+          return;
+        }
+        if (data.status === 'failed') {
+          setError(data.error || 'Scan failed');
+          setScanning(false);
+          return;
+        }
+        setScanning(false);
         setReport(data.report);
         if (data.plan) setPlan(data.plan);
-      })
-      .catch((err) => setError(err.message));
+      } catch (err: unknown) {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load scan');
+      }
+    }
+
+    poll();
+    return () => { cancelled = true; };
   }, [id]);
 
   if (error) {
@@ -46,7 +67,14 @@ export function ScanResults() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div className="w-8 h-8 border-2 border-primary-container border-t-transparent animate-spin" />
-        <p className="font-mono text-xs text-on-surface-variant tracking-wider">LOADING SCAN DATA...</p>
+        <p className="font-mono text-xs text-on-surface-variant tracking-wider">
+          {scanning ? 'SCANNING REPOSITORY... THIS MAY TAKE A FEW MINUTES' : 'LOADING SCAN DATA...'}
+        </p>
+        {scanning && (
+          <p className="font-mono text-[10px] text-on-surface-variant/50 tracking-wider">
+            ANALYZING CRYPTOGRAPHIC PRIMITIVES // CHECKING QUANTUM VULNERABILITY
+          </p>
+        )}
       </div>
     );
   }

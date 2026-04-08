@@ -2,10 +2,24 @@
    QC-SENTRY  //  API Client
    ──────────────────────────────────────────── */
 
-const BASE = '/api';
+// Use API Gateway directly when hosted on CloudFront, otherwise use relative /api
+const CLOUD_API = import.meta.env.VITE_API_URL || '';
+const BASE = CLOUD_API ? `${CLOUD_API}/api` : '/api';
+
+// Session ID: unique per browser tab, cleared when the tab closes
+function getSessionId(): string {
+  let id = sessionStorage.getItem('qcrypt-session-id');
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem('qcrypt-session-id', id);
+  }
+  return id;
+}
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    'X-Session-Id': getSessionId(),
+  };
   if (init?.body) {
     headers['Content-Type'] = 'application/json';
   }
@@ -270,6 +284,8 @@ export function scanPath(path: string): Promise<ScanResponse> {
 export interface ScanDetail {
   report: ScanReport;
   plan: MigrationPlan;
+  status?: 'scanning' | 'failed' | 'complete';
+  error?: string;
 }
 
 export function getScan(id: string): Promise<ScanDetail> {
