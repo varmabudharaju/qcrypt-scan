@@ -101,7 +101,7 @@ export function Dashboard() {
             value={path}
             onChange={(e) => setPath(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleScan()}
-            placeholder="/path/to/project or https://github.com/org/repo"
+            placeholder="https://github.com/org/repo"
             disabled={scanning}
             className="flex-1 px-4 py-3 bg-surface-container-lowest text-primary font-mono text-sm placeholder-on-surface-variant/50 focus:outline-none focus:ring-1 focus:ring-primary-container/50 border-none"
           />
@@ -117,7 +117,7 @@ export function Dashboard() {
           <p className="mt-3 font-mono text-xs text-error">{error}</p>
         )}
         <p className="mt-2 font-mono text-[10px] text-on-surface-variant/60 tracking-wider">
-          SUPPORTS LOCAL DIRECTORIES AND GITHUB URLS
+          PASTE ANY PUBLIC GITHUB REPO URL
         </p>
       </div>
 
