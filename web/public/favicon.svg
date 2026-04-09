@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#39ff14"/>
+      <stop offset="100%" stop-color="#00e676"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Dark background -->
+  <rect width="64" height="64" rx="12" fill="#131318"/>
+  <!-- Shield outline -->
+  <path d="M32 8 L52 18 L52 34 C52 46 42 54 32 58 C22 54 12 46 12 34 L12 18 Z"
+        fill="none" stroke="url(#g)" stroke-width="2.5" filter="url(#glow)" opacity="0.9"/>
+  <!-- Inner quantum orbit -->
+  <ellipse cx="32" cy="32" rx="12" ry="6" fill="none" stroke="#39ff14" stroke-width="1.5" opacity="0.6" transform="rotate(-30 32 32)"/>
+  <ellipse cx="32" cy="32" rx="12" ry="6" fill="none" stroke="#39ff14" stroke-width="1.5" opacity="0.6" transform="rotate(30 32 32)"/>
+  <ellipse cx="32" cy="32" rx="12" ry="6" fill="none" stroke="#39ff14" stroke-width="1.5" opacity="0.6" transform="rotate(90 32 32)"/>
+  <!-- Center dot (quantum particle) -->
+  <circle cx="32" cy="32" r="3" fill="#39ff14" filter="url(#glow)"/>
+  <!-- Q letter hint -->
+  <text x="32" y="48" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="10" fill="#39ff14" opacity="0.4">QC</text>
+</svg>
