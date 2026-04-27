@@ -1,11 +1,33 @@
 {
   "name": "qcrypt-scan",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Scan codebases for quantum-vulnerable cryptography",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
     "qcrypt-scan": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "web/dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "homepage": "https://qcrypt.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/varmabudharaju/qcrypt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/varmabudharaju/qcrypt/issues"
+  },
+  "author": {
+    "name": "Varma Budharaju",
+    "url": "https://github.com/varmabudharaju"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsc",

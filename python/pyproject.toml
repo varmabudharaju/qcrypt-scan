@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qcrypt-scan"
-version = "0.2.0"
+version = "0.2.1"
 description = "Scan codebases for quantum-vulnerable cryptography"
 readme = "README.md"
 license = {text = "MIT"}
@@ -27,9 +27,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/varmabudharaju/qcrypt-scan"
-Repository = "https://github.com/varmabudharaju/qcrypt-scan"
-Issues = "https://github.com/varmabudharaju/qcrypt-scan/issues"
+Homepage = "https://qcrypt.dev"
+Repository = "https://github.com/varmabudharaju/qcrypt"
+Issues = "https://github.com/varmabudharaju/qcrypt/issues"
+Changelog = "https://github.com/varmabudharaju/qcrypt/blob/main/CHANGELOG.md"
 
 [project.scripts]
 qcrypt-scan = "qcrypt_scan.cli:main"

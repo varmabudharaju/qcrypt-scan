@@ -21,3 +21,18 @@ dist/
 *.db
 *.db-shm
 *.db-wal
+
+# Secrets — must NEVER be committed
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials
+credentials.json
+.aws/
+secrets.yml
+secrets.yaml
+*.local

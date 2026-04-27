@@ -28,9 +28,10 @@ const program = new Command();
 program
   .name('qcrypt-scan')
   .description('Quantum cryptography scanner, benchmarking, and migration toolkit')
-  .version('0.2.0')
+  .version('0.2.1')
   .option('--serve', 'start Quantum Sentry web UI')
-  .option('--port <number>', 'server port', '3100');
+  .option('--port <number>', 'server port', '3100')
+  .option('--open', 'open the dashboard in your default browser when --serve starts');
 
 // Default action: scan
 program
@@ -50,37 +51,56 @@ program
       config?: string;
       serve?: boolean;
       port?: string;
+      open?: boolean;
       ci?: boolean;
       failOn?: string;
     },
   ) => {
     if (options.serve) {
       const port = parseInt(options.port ?? '3100', 10);
+      const server = createServer();
 
-      // Kill any existing process on the port
       try {
-        const { spawnSync } = await import('node:child_process');
-        const result = spawnSync('lsof', ['-ti', `:${port}`], { encoding: 'utf-8' });
-        const pid = result.stdout.trim();
-        if (pid && /^\d+$/.test(pid)) {
-          spawnSync('kill', [pid]);
-          // Brief wait for port to free up
-          await new Promise((r) => setTimeout(r, 300));
+        await server.listen({ port, host: '0.0.0.0' });
+      } catch (err) {
+        const code = (err as NodeJS.ErrnoException).code;
+        if (code === 'EADDRINUSE') {
+          console.error('');
+          console.error(`  ✗ Port ${port} is already in use.`);
+          console.error('');
+          console.error('    Try a different port:');
+          console.error(`      qcrypt-scan --serve --port ${port + 1}`);
+          console.error('');
+          console.error('    Or stop whatever is using it:');
+          console.error(`      kill $(lsof -tiTCP:${port} -sTCP:LISTEN)`);
+          console.error('');
+          process.exit(1);
         }
-      } catch {
-        // No process on port — that's fine
+        throw err;
       }
 
-      const server = createServer();
-      await server.listen({ port, host: '0.0.0.0' });
+      const url = `http://localhost:${port}`;
       console.log('');
       console.log('  ⬡ Quantum Sentry is live');
-      console.log(`  ➜ Local:   http://localhost:${port}`);
+      console.log(`  ➜ Local:   ${url}`);
       const nets = Object.values(await import('node:os').then((m) => m.networkInterfaces())).flat().filter((n) => n && n.family === 'IPv4' && !n.internal);
       if (nets.length > 0) {
         console.log(`  ➜ Network: http://${nets[0]!.address}:${port}`);
       }
       console.log('');
+
+      if (options.open) {
+        const { spawn } = await import('node:child_process');
+        const cmd = process.platform === 'darwin' ? 'open'
+                  : process.platform === 'win32' ? 'cmd'
+                  : 'xdg-open';
+        const args = process.platform === 'win32' ? ['/c', 'start', '', url] : [url];
+        try {
+          spawn(cmd, args, { stdio: 'ignore', detached: true }).unref();
+        } catch {
+          // Best-effort: if the browser open fails, the URL is still printed above.
+        }
+      }
 
       // Keep process alive until interrupted
       process.on('SIGINT', async () => {
