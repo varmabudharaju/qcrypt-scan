@@ -1,8 +1,12 @@
 # qcrypt
 
+[![npm](https://img.shields.io/npm/v/qcrypt-scan.svg)](https://www.npmjs.com/package/qcrypt-scan)
+[![CI](https://github.com/varmabudharaju/qcrypt/actions/workflows/ci.yml/badge.svg)](https://github.com/varmabudharaju/qcrypt/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Scan any codebase for quantum-vulnerable cryptography. Get a grade, see what breaks when quantum computers arrive, and know exactly what to fix.
 
-**8 languages** | **Cited quantum break times** | **NIST deadline tracking** | **Diff-aware CI**
+**11 languages** | **Cited quantum break times** | **NIST deadline tracking** | **Diff-aware CI**
 
 ![Dashboard](docs/images/dashboard.png)
 
@@ -16,24 +20,32 @@ qcrypt finds it, grades it, and tells you how long you have.
 
 **No install — hosted:** paste any public GitHub URL at [qcrypt.dev](https://qcrypt.dev).
 
-**Run locally (scan private code without it leaving your machine):**
+**Zero-install with npx (scans run on your machine, nothing uploaded):**
+
+```bash
+npx qcrypt-scan https://github.com/nodejs/node    # scan any public repo
+npx qcrypt-scan .                                  # scan current directory
+npx qcrypt-scan /path/to/project --json            # JSON for scripting
+npx qcrypt-scan --serve --open                     # launch local dashboard at :3100
+```
+
+**Or install globally:**
+
+```bash
+npm install -g qcrypt-scan
+qcrypt-scan --serve --open
+```
+
+**Build from source (for contributors):**
 
 ```bash
 git clone https://github.com/varmabudharaju/qcrypt.git
 cd qcrypt
-npm install         # auto-builds via the prepare hook
-npm link            # puts `qcrypt-scan` on your PATH (optional)
-
-qcrypt-scan .                                        # scan current directory
-qcrypt-scan /path/to/project                         # scan a local project
-qcrypt-scan https://github.com/nodejs/node           # scan a public GitHub repo
-qcrypt-scan . --json                                 # JSON for scripting
-qcrypt-scan --serve                                  # web dashboard on :3100
+npm install              # auto-builds CLI + web dashboard via the prepare hook
+node dist/cli.js --serve --open
 ```
 
-If you skip `npm link`, substitute `node dist/cli.js` for `qcrypt-scan` above.
-
-> `npx qcrypt-scan` and `pip install qcrypt-scan` are coming — not on npm/PyPI yet. Until then, use the clone path above or the hosted site.
+> `pip install qcrypt-scan` is coming next. Until then, use one of the paths above.
 
 ## What You Get
 
