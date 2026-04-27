@@ -1,5 +1,5 @@
 name: 'qcrypt-scan'
-description: 'Scan PRs for quantum-vulnerable cryptography. Diff-aware - only flags new RSA, ECDSA, MD5, etc. introduced by the PR. Cites quantum break times. NIST 2030/2035 deadline tracking.'
+description: 'Diff-aware PR scanner for quantum-vulnerable cryptography (RSA, ECDSA, MD5). Cites break times. NIST-aligned.'
 author: 'varmabudharaju'
 branding:
   icon: 'shield'
